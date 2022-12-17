@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  labels:
+    name: users-deployment
+    app: tiendavirtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: users-deployment
+      app: tiendavirtual
+  template:
+    metadata:
+      labels:
+        name: users-deployment
+        app: tiendavirtual
+    spec:
+      containers:
+        - name: usersapi
+          image: iv120/cn-p8-usuarios:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo:27017/API_NUBE
+          imagePullPolicy: Always

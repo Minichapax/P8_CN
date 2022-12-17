@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: users
+  labels:
+    name: users-service
+    app: tiendavirtual
+spec:
+  selector:
+    name: users-deployment
+    app: tiendavirtual
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer

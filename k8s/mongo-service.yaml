@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo-service
+    app: tiendavirtual
+spec:
+  selector:
+    name: mongo-deployment
+    app: tiendavirtual
+  ports:
+    - port: 27017
+      targetPort: 27017
