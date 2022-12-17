@@ -62,7 +62,7 @@ public class UserController {
     @Operation(
             operationId = "getAllUsers",
             summary = "Obtiene la lista de usuarios, paginada",
-            description = "Se puede filtrar por email y nombre. Necesita estar conectado"
+            description = "Se puede filtrar por email y nombre. Accesible únicamente para administradores."
     )
     @ApiResponses({
             @ApiResponse(

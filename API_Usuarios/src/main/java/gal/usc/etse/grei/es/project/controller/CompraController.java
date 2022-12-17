@@ -1,13 +1,45 @@
 package gal.usc.etse.grei.es.project.controller;
 
+import gal.usc.etse.grei.es.project.exception.ErrorCodes;
+import gal.usc.etse.grei.es.project.exception.ExceptionResponse;
+import gal.usc.etse.grei.es.project.exception.ThrowHttpError;
+import gal.usc.etse.grei.es.project.model.Compra;
+import gal.usc.etse.grei.es.project.model.CompraInput;
+import gal.usc.etse.grei.es.project.model.Usuario;
 import gal.usc.etse.grei.es.project.service.CompraService;
+import gal.usc.etse.grei.es.project.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.LinkRelationProvider;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.validation.constraints.Email;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("compras")
@@ -25,24 +57,24 @@ public class CompraController {
         this.relationProvider = relationProvider;
     }
 
-    /*
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
-            operationId = "getAllUsers",
-            summary = "Obtiene la lista de usuarios, paginada",
-            description = "Se puede filtrar por email y nombre. Necesita estar conectado"
+            operationId = "getAllCompras",
+            summary = "Obtiene la lista de compras de los usuarios, paginada",
+            description = "Se puede filtrar por email. Accesible únicamente para administradores."
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Página de usuarios solicitada"
+                    description = "Página de compras solicitada"
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Ningún usuario encontrado",
+                    description = "Ninguna compra encontrada",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)
@@ -65,11 +97,10 @@ public class CompraController {
                     )
             ),
     })
-    ResponseEntity<Page<User>> get(
+    ResponseEntity<Page<Compra>> get(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort,
-            @RequestParam(name= "name", required = false ) String name,
             @RequestParam(name= "email", required = false ) @Email String email
             ){
 
@@ -85,18 +116,18 @@ public class CompraController {
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
 
-        Optional<Page<User>> listado = users.get(page, size, Sort.by(criteria), name, email);
+        Optional<Page<Compra>> listado = compras.get(page, size, Sort.by(criteria), email);
 
         if ( !listado.isPresent() ){
             throw new ResponseStatusException( ErrorCodes.SEARCH_NO_RESULT.getHttpStatus(), ErrorCodes.SEARCH_NO_RESULT.getErrorCode(), null);
         }
 
-        Link self = linkTo( methodOn(CompraController.class).get(page, size, sort, email, name) ).withSelfRel();
-        Link first = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().first().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.FIRST);
-        Link last = linkTo( methodOn(CompraController.class).get(listado.get().getTotalPages() - 1, size, sort, email, name)).withRel(IanaLinkRelations.LAST);
-        Link next = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().next().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.NEXT);
-        Link previous = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().previousOrFirst().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.PREVIOUS);
-        Link one = linkTo( methodOn(CompraController.class).get(null) ).withRel(relationProvider.getItemResourceRelFor(User.class));
+        Link self = linkTo( methodOn(CompraController.class).get(page, size, sort, email) ).withSelfRel();
+        Link first = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().first().getPageNumber(), size, sort, email) ).withRel(IanaLinkRelations.FIRST);
+        Link last = linkTo( methodOn(CompraController.class).get(listado.get().getTotalPages() - 1, size, sort, email)).withRel(IanaLinkRelations.LAST);
+        Link next = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().next().getPageNumber(), size, sort, email) ).withRel(IanaLinkRelations.NEXT);
+        Link previous = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().previousOrFirst().getPageNumber(), size, sort, email) ).withRel(IanaLinkRelations.PREVIOUS);
+        Link one = linkTo( methodOn(CompraController.class).get(null) ).withRel(relationProvider.getItemResourceRelFor(Compra.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -113,24 +144,24 @@ public class CompraController {
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("@userService.hasAccessRights(#id, principal) or hasRole('ADMIN')")
+    @PreAuthorize("@compraService.hasAccessRights(#id, principal) or hasRole('ADMIN')")
     @Operation(
-            operationId = "getOneUser",
-            summary = "Obtener un usuario por ID",
-            description = "Necesita especificar ID de usuario. Necesita estar conectado"
+            operationId = "getOneCompra",
+            summary = "Obtener una compra por ID",
+            description = "Necesita especificar ID de compra. Necesita estar identificado"
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Usuario solicitado",
+                    description = "Compra solicitada",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = User.class)
+                            schema = @Schema(implementation = Compra.class)
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Usuario no encontrado",
+                    description = "Compra no encontrada",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)
@@ -153,12 +184,12 @@ public class CompraController {
                     )
             ),
     })
-    ResponseEntity<User> get(@PathVariable("id") String id) {
-        Optional<User> usuario = users.get(id);
+    ResponseEntity<Compra> get(@PathVariable("id") String id) {
+        Optional<Compra> usuario = compras.get(id);
         if ( !usuario.isPresent() ) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
 
         Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
-        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -166,46 +197,6 @@ public class CompraController {
                 .body(usuario.get());
     }
 
-
-    @GetMapping(
-            path = "@me",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @PreAuthorize("hasRole('USER')")
-    @Operation(
-            operationId = "getUserMe",
-            summary = "Obtiene el usuario autenticado actualmente.",
-            description = "Necesitas estar autenticado."
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario autenticado",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = User.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Autenticación necesaria",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-    })
-    ResponseEntity<User> getMe() {
-        Optional<User> usuario = users.getbyEmail( (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal() );
-
-        Link self = linkTo(methodOn(CompraController.class).getMe()).withSelfRel();
-        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.LINK, self.toString())
-                .header(HttpHeaders.LINK, all.toString())
-                .body(usuario.get());
-    }
 
 
     @PostMapping(
@@ -213,17 +204,17 @@ public class CompraController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Operation(
-            operationId = "createUser",
-            summary = "Crea un nuevo usuario en el sistema.",
-            description = "Permite la creación de un nuevo usuario en el sistema para poder interactuar con éste."
+            operationId = "createCompra",
+            summary = "Realiza una compra de un disco dentro del sistema.",
+            description = "Permite que un usuario realice la compra de los objetos que tiene en el carrito."
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
-                    description = "Creado el nuevo usuario",
+                    description = "Compra realizada correctamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = User.class)
+                            schema = @Schema(implementation = Compra.class)
                     )
             ),
             @ApiResponse(
@@ -233,25 +224,17 @@ public class CompraController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)
                     )
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "La combinación de parámetros suministrada ya existe en el sistema",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
+            )
     })
-    ResponseEntity<User> insert(@RequestBody User user) {
-        Optional<User> result = users.insert(user);
+    ResponseEntity<Compra> insert(@RequestBody CompraInput compra) {
+        Optional<Compra> result = compras.insert(compra);
         if(result.isEmpty()) {
             throw new ResponseStatusException(ErrorCodes.CREATION_CONFLICT.getHttpStatus(), ErrorCodes.CREATION_CONFLICT.getErrorCode(), null);
         } else {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId().toString()).build().toUri();
 
-            Link self = linkTo(methodOn(CompraController.class).get(result.get().getEmail())).withSelfRel();
-            Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+            Link self = linkTo(methodOn(CompraController.class).get(result.get().getId())).withSelfRel();
+            Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
 
             return ResponseEntity.created(uri)
                     .header(HttpHeaders.LINK, self.toString())
@@ -261,95 +244,20 @@ public class CompraController {
     }
 
 
-    @PatchMapping(
-            path = "{id}",
-            consumes = "application/json-patch+json",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @PreAuthorize("@userService.hasAccessRights(#id, principal) or hasRole('ADMIN')")
-    @Operation(
-            operationId = "patchUser",
-            summary = "Editar un usuario en el sistema.",
-            description = "Permite la edición de un usuario. Sólo es posible editar el usuario actual. " +
-                    "Sólo se pueden editar los campos email y nombre. Los demás serán ignorados."
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario actualizado",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = User.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Los comandos PATCH no disponen de un esquema adecuado.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Petición no autenticada",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "No tienes permiso para acceder al recurso solicitado",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "422",
-                    description = "El servidor es incapaz de procesar la solicitud definida en el esquema enviado",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionResponse.class)
-                    )
-            ),
-    })
-    ResponseEntity<User> patch(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> operaciones) {
-        Optional<User> usuario = users.patch(id, operaciones);
-
-        Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
-        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.LINK, self.toString())
-                .header(HttpHeaders.LINK, all.toString())
-                .body(usuario.get());
-    }
-
-
     @DeleteMapping(
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("@userService.hasAccessRights(#id, principal) or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-            operationId = "deleteUser",
-            summary = "Elimina un usuario del sistema.",
-            description = "Elimina un usuario del sistema de datos. Sólo puede realizarlo el propio usuario o un administrador."
+            operationId = "deleteCompra",
+            summary = "Elimina una compra del sistema.",
+            description = "Elimina una compra que haya realizado un usuario. Necesitas ser administrador para eliminar compras."
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "204",
-                    description = "Usuario eliminado"
+                    description = "Compra eliminado"
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -369,7 +277,7 @@ public class CompraController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Usuario no encontrado",
+                    description = "Compra no encontrado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionResponse.class)
@@ -377,12 +285,12 @@ public class CompraController {
             )
     })
     ResponseEntity<Void> delete(@PathVariable("id") String id) {
-        if( !users.delete(id) ){ throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null); }
+        if( !compras.delete(id) ){ throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null); }
 
-        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
         return ResponseEntity.noContent()
                 .header(HttpHeaders.LINK, all.toString())
                 .build();
-    }*/
+    }
 
 }
