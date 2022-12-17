@@ -1,60 +1,31 @@
 package gal.usc.etse.grei.es.project.controller;
 
-import gal.usc.etse.grei.es.project.exception.ErrorCodes;
-import gal.usc.etse.grei.es.project.exception.ExceptionResponse;
-import gal.usc.etse.grei.es.project.exception.ThrowHttpError;
-import gal.usc.etse.grei.es.project.model.Usuario;
-import gal.usc.etse.grei.es.project.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import gal.usc.etse.grei.es.project.service.CompraService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.LinkRelationProvider;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.constraints.Email;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("usuarios")
-@Tag(name = "User API", description = "Operaciones de usuarios")
+@RequestMapping("compras")
+@Tag(name = "User API", description = "Operaciones de compras")
 @SecurityRequirement(name = "JWT")
 @CrossOrigin(origins = "*")
-public class UserController {
+public class CompraController {
 
-    private final UserService users;
+    private final CompraService compras;
     private final LinkRelationProvider relationProvider;
 
     @Autowired
-    public UserController(UserService users, LinkRelationProvider relationProvider) {
-        this.users = users;
+    public CompraController(CompraService compras, LinkRelationProvider relationProvider) {
+        this.compras = compras;
         this.relationProvider = relationProvider;
     }
 
-
+    /*
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -94,7 +65,7 @@ public class UserController {
                     )
             ),
     })
-    ResponseEntity<Page<Usuario>> get(
+    ResponseEntity<Page<User>> get(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort,
@@ -114,18 +85,18 @@ public class UserController {
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
 
-        Optional<Page<Usuario>> listado = users.get(page, size, Sort.by(criteria), name, email);
+        Optional<Page<User>> listado = users.get(page, size, Sort.by(criteria), name, email);
 
         if ( !listado.isPresent() ){
             throw new ResponseStatusException( ErrorCodes.SEARCH_NO_RESULT.getHttpStatus(), ErrorCodes.SEARCH_NO_RESULT.getErrorCode(), null);
         }
 
-        Link self = linkTo( methodOn(UserController.class).get(page, size, sort, email, name) ).withSelfRel();
-        Link first = linkTo( methodOn(UserController.class).get(listado.get().getPageable().first().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.FIRST);
-        Link last = linkTo( methodOn(UserController.class).get(listado.get().getTotalPages() - 1, size, sort, email, name)).withRel(IanaLinkRelations.LAST);
-        Link next = linkTo( methodOn(UserController.class).get(listado.get().getPageable().next().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.NEXT);
-        Link previous = linkTo( methodOn(UserController.class).get(listado.get().getPageable().previousOrFirst().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.PREVIOUS);
-        Link one = linkTo( methodOn(UserController.class).get(null) ).withRel(relationProvider.getItemResourceRelFor(Usuario.class));
+        Link self = linkTo( methodOn(CompraController.class).get(page, size, sort, email, name) ).withSelfRel();
+        Link first = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().first().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.FIRST);
+        Link last = linkTo( methodOn(CompraController.class).get(listado.get().getTotalPages() - 1, size, sort, email, name)).withRel(IanaLinkRelations.LAST);
+        Link next = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().next().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.NEXT);
+        Link previous = linkTo( methodOn(CompraController.class).get(listado.get().getPageable().previousOrFirst().getPageNumber(), size, sort, email, name) ).withRel(IanaLinkRelations.PREVIOUS);
+        Link one = linkTo( methodOn(CompraController.class).get(null) ).withRel(relationProvider.getItemResourceRelFor(User.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -154,7 +125,7 @@ public class UserController {
                     description = "Usuario solicitado",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class)
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -182,12 +153,12 @@ public class UserController {
                     )
             ),
     })
-    ResponseEntity<Usuario> get(@PathVariable("id") String id) {
-        Optional<Usuario> usuario = users.get(id);
+    ResponseEntity<User> get(@PathVariable("id") String id) {
+        Optional<User> usuario = users.get(id);
         if ( !usuario.isPresent() ) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
 
-        Link self = linkTo(methodOn(UserController.class).get(id)).withSelfRel();
-        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
+        Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -212,7 +183,7 @@ public class UserController {
                     description = "Usuario autenticado",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class)
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -224,11 +195,11 @@ public class UserController {
                     )
             ),
     })
-    ResponseEntity<Usuario> getMe() {
-        Optional<Usuario> usuario = users.getbyEmail( (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal() );
+    ResponseEntity<User> getMe() {
+        Optional<User> usuario = users.getbyEmail( (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal() );
 
-        Link self = linkTo(methodOn(UserController.class).getMe()).withSelfRel();
-        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
+        Link self = linkTo(methodOn(CompraController.class).getMe()).withSelfRel();
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -252,7 +223,7 @@ public class UserController {
                     description = "Creado el nuevo usuario",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class)
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -272,15 +243,15 @@ public class UserController {
                     )
             ),
     })
-    ResponseEntity<Usuario> insert(@RequestBody Usuario usuario) {
-        Optional<Usuario> result = users.insert(usuario);
+    ResponseEntity<User> insert(@RequestBody User user) {
+        Optional<User> result = users.insert(user);
         if(result.isEmpty()) {
             throw new ResponseStatusException(ErrorCodes.CREATION_CONFLICT.getHttpStatus(), ErrorCodes.CREATION_CONFLICT.getErrorCode(), null);
         } else {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId().toString()).build().toUri();
 
-            Link self = linkTo(methodOn(UserController.class).get(result.get().getEmail())).withSelfRel();
-            Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
+            Link self = linkTo(methodOn(CompraController.class).get(result.get().getEmail())).withSelfRel();
+            Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
 
             return ResponseEntity.created(uri)
                     .header(HttpHeaders.LINK, self.toString())
@@ -308,7 +279,7 @@ public class UserController {
                     description = "Usuario actualizado",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class)
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -352,11 +323,11 @@ public class UserController {
                     )
             ),
     })
-    ResponseEntity<Usuario> patch(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> operaciones) {
-        Optional<Usuario> usuario = users.patch(id, operaciones);
+    ResponseEntity<User> patch(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> operaciones) {
+        Optional<User> usuario = users.patch(id, operaciones);
 
-        Link self = linkTo(methodOn(UserController.class).get(id)).withSelfRel();
-        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
+        Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.LINK, self.toString())
@@ -408,10 +379,10 @@ public class UserController {
     ResponseEntity<Void> delete(@PathVariable("id") String id) {
         if( !users.delete(id) ){ throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null); }
 
-        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
+        Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
         return ResponseEntity.noContent()
                 .header(HttpHeaders.LINK, all.toString())
                 .build();
-    }
+    }*/
 
 }

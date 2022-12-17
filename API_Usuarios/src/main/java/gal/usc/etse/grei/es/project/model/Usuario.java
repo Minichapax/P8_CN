@@ -9,12 +9,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 
 @Document(collection = "usuarios")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User {
+public class Usuario {
 
     @Id
     @NotBlank(message = "La ID no puede estar vacía")
@@ -30,17 +29,17 @@ public class User {
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
 
-    private Date nacimiento;
+    private Fecha nacimiento;
 
     @NotBlank(message = "La contraseña no puede estar vacía")
     private String contrasena;
 
     private List<String> roles;
 
-    public User() {
+    public Usuario() {
     }
 
-    public User(String id, String email, String nombre, Date nacimiento, String contrasena, List<String> roles) {
+    public Usuario(String id, String email, String nombre, Fecha nacimiento, String contrasena, List<String> roles) {
         this.id = id;
         this.email = email;
         this.nombre = nombre;
@@ -74,11 +73,11 @@ public class User {
         this.nombre = nombre;
     }
 
-    public Date getNacimiento() {
+    public Fecha getNacimiento() {
         return nacimiento;
     }
 
-    public void setNacimiento(Date cumpleanos) {
+    public void setNacimiento(Fecha cumpleanos) {
         this.nacimiento = cumpleanos;
     }
 
@@ -101,9 +100,9 @@ public class User {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User user = (User) o;
-        return id.equals(user.id) && email.equals(user.email) && nombre.equals(user.nombre) && nacimiento.equals(user.nacimiento) && contrasena.equals(user.contrasena) && roles.equals(user.roles);
+        if (!(o instanceof Usuario)) return false;
+        Usuario usuario = (Usuario) o;
+        return id.equals(usuario.id) && email.equals(usuario.email) && nombre.equals(usuario.nombre) && nacimiento.equals(usuario.nacimiento) && contrasena.equals(usuario.contrasena) && roles.equals(usuario.roles);
     }
 
     @Override

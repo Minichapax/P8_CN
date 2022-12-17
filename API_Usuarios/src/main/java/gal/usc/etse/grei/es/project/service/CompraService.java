@@ -1,46 +1,39 @@
 package gal.usc.etse.grei.es.project.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import gal.usc.etse.grei.es.project.exception.ErrorCodes;
-import gal.usc.etse.grei.es.project.exception.ThrowHttpError;
-import gal.usc.etse.grei.es.project.model.Usuario;
-import gal.usc.etse.grei.es.project.repository.UserRepository;
+import gal.usc.etse.grei.es.project.repository.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 @Service
-public class UserService {
+public class CompraService {
 
     private final PasswordEncoder encoder;
-    private final UserRepository users;
+    private final CompraRepository compra;
     private final PatchUtils patchUtils;
     private final ObjectMapper mapper;
 
     @Autowired
-    public UserService(UserRepository users, PatchUtils pu, ObjectMapper mapper, PasswordEncoder encoder) {
+    public CompraService(CompraRepository compra, PatchUtils pu, ObjectMapper mapper, PasswordEncoder encoder) {
         this.encoder = encoder;
-        this.users = users;
+        this.compra = compra;
         this.patchUtils = pu;
         this.mapper = mapper;
     }
-
-    private Optional<Usuario> findUser(String id ){
+    /*
+    private Optional<User> findUser( String id ){
         return users.findById(id);
     }
 
-    public Optional<Page<Usuario>> get(int page, int size, Sort sort, String name, String email) {
+    public Optional<Page<User>> get(int page, int size, Sort sort, String name, String email) {
         Pageable request = PageRequest.of(page, size, sort);
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withIgnoreCase()
                 .withIgnoreNullValues()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-        Usuario example = new Usuario();
+        User example = new User();
 
         if ( name != null && name.length() > 0 ) {
             example.setNombre(name);
@@ -49,11 +42,11 @@ public class UserService {
             example.setEmail(email);
         }
 
-        Page<Usuario> dbresult = users.findAll( Example.of(example, matcher), request);
+        Page<User> dbresult = users.findAll( Example.of(example, matcher), request);
 
         if (dbresult.isEmpty()) return Optional.empty();
         else{
-            for ( Usuario u : dbresult ){
+            for ( User u : dbresult ){
                 u.setContrasena(null);
             }
             return Optional.of(dbresult);
@@ -61,18 +54,18 @@ public class UserService {
     }
 
 
-    public Optional<Usuario> get(String id) {
-        Optional<Usuario> u = users.findById(id);
+    public Optional<User> get(String id) {
+        Optional<User> u = users.findById(id);
         if (u.isEmpty()) { return Optional.empty(); }
         u.get().setContrasena(null);
         return u;
     }
 
 
-    public Optional<Usuario> getbyEmail(String email) {
-        Usuario example = new Usuario();
+    public Optional<User> getbyEmail(String email) {
+        User example = new User();
         example.setEmail(email);
-        Optional<Usuario> u = users.findOne( Example.of(example, ExampleMatcher.matchingAll().withIgnoreCase().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.EXACT)) );
+        Optional<User> u = users.findOne( Example.of(example, ExampleMatcher.matchingAll().withIgnoreCase().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.EXACT)) );
         if (u.isEmpty()){ return Optional.empty(); }
         u.get().setContrasena(null);
         return u;
@@ -81,7 +74,7 @@ public class UserService {
 
     public boolean hasAccessRights(String id, String email) {
         // Obtenemos usuario por ID
-        Optional<Usuario> u = users.findById(id);
+        Optional<User> u = users.findById(id);
         if (u.isEmpty()) return false;
 
         // Comprobamos si el email del usuario es el mismo que el de la petición
@@ -89,10 +82,10 @@ public class UserService {
     }
 
 
-    public Optional<Usuario> patch(String id, List<Map<String, Object>> operaciones){
+    public Optional<User> patch(String id, List<Map<String, Object>> operaciones){
         // Buscamos el usuario a editar
-        Usuario u;
-        Optional<Usuario> optU = findUser(id);
+        User u;
+        Optional<User> optU = findUser(id);
         if (optU.isEmpty()){ ThrowHttpError.throwHTTPCode(ErrorCodes.CONTENT_NOT_FOUND); }
         u = optU.get();
 
@@ -141,36 +134,36 @@ public class UserService {
     }
 
 
-    public Optional<Usuario> insert(Usuario usuario) {
+    public Optional<User> insert(User user) {
         // Verificamos que existan todos los campos
-        if ( usuario.getEmail() == null || usuario.getEmail().isEmpty()
-                || usuario.getNombre() == null || usuario.getNombre().isEmpty()
-                || usuario.getContrasena() == null || usuario.getContrasena().isEmpty()
-                || usuario.getNacimiento() == null || usuario.getNacimiento().getAno() == null
-                || usuario.getNacimiento().getDia() == null || usuario.getNacimiento().getMes() == null) {
+        if ( user.getEmail() == null || user.getEmail().isEmpty()
+                || user.getNombre() == null || user.getNombre().isEmpty()
+                || user.getContrasena() == null || user.getContrasena().isEmpty()
+                || user.getNacimiento() == null || user.getNacimiento().getAno() == null
+                || user.getNacimiento().getDia() == null || user.getNacimiento().getMes() == null) {
             ThrowHttpError.throwHTTPCode(ErrorCodes.NOT_ENOUGH_FIELDS);
         }
 
         // Evitamos repetir ID y email
         ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase().withIgnoreNullValues();
-        Usuario example = new Usuario();
-        example.setEmail(usuario.getEmail());
+        User example = new User();
+        example.setEmail(user.getEmail());
 
         if ( users.exists(Example.of(example, matcher)) ) {
             return Optional.empty();
         }
 
-        usuario.setId(UUID.randomUUID().toString());
-        usuario.setContrasena(encoder.encode(usuario.getContrasena()));
+        user.setId(UUID.randomUUID().toString());
+        user.setContrasena(encoder.encode(user.getContrasena()));
 
         // Para este ejemplo de aplicación permitimos la creación de usuarios como ADMIN, aunque no tiene sentido
-        if ( usuario.getRoles() == null || usuario.getRoles().isEmpty() ){
+        if ( user.getRoles() == null || user.getRoles().isEmpty() ){
             ArrayList<String> roleList = new ArrayList<>();
             roleList.add("ROLE_USER");
-            usuario.setRoles( roleList );
+            user.setRoles( roleList );
         }
 
-        Usuario inserted = users.insert(usuario);
+        User inserted = users.insert(user);
         inserted.setContrasena(null);
 
         return Optional.of(inserted);
@@ -178,13 +171,13 @@ public class UserService {
 
 
     public boolean delete(String id) {
-        Optional<Usuario> user = users.findById(id);
+        Optional<User> user = users.findById(id);
 
         if ( user.isPresent() ) {
             users.deleteById(id);
             return true;
         }
         return false;
-    }
+    }*/
 
 }
