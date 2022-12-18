@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carrito-deployment
+  labels:
+    name: carrito-deployment
+    app: tiendavirtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: carrito-deployment
+      app: tiendavirtual
+  template:
+    metadata:
+      labels:
+        name: carrito-deployment
+        app: tiendavirtual
+    spec:
+      containers:
+        - name: carritoapi
+          image: iv120/cnp8-carrito:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo:27017/API_NUBE
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: API_NUBE
+          imagePullPolicy: Always

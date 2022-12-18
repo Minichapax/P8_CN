@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cds-deployment
+  labels:
+    name: cds-deployment
+    app: tiendavirtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cds-deployment
+      app: tiendavirtual
+  template:
+    metadata:
+      labels:
+        name: cds-deployment
+        app: tiendavirtual
+    spec:
+      containers:
+        - name: cdsapi
+          image: iv120/cnp8-cds:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo:27017/API_NUBE
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: API_NUBE
+          imagePullPolicy: Always
