@@ -1,0 +1,16 @@
+gal/usc/etse/grei/es/Application.java
+ gal.usc.etse.grei.es.Application
+gal/usc/etse/grei/es/project/controller/DiskController.java
+ gal.usc.etse.grei.es.project.controller.DiskController
+gal/usc/etse/grei/es/project/service/DiskService.java
+ gal.usc.etse.grei.es.project.service.DiskService
+gal/usc/etse/grei/es/project/model/Disco.java
+ gal.usc.etse.grei.es.project.model.Disco
+gal/usc/etse/grei/es/project/repository/DiskRepository.java
+ gal.usc.etse.grei.es.project.repository.DiskRepository
+gal/usc/etse/grei/es/project/configuration/OpenAPIConfiguration.java
+ gal.usc.etse.grei.es.project.configuration.OpenAPIConfiguration
+gal/usc/etse/grei/es/project/model/Date.java
+ gal.usc.etse.grei.es.project.model.Date
+gal/usc/etse/grei/es/project/service/PatchUtils.java
+ gal.usc.etse.grei.es.project.service.PatchUtils

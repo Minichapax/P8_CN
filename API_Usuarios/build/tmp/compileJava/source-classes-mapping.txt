@@ -1,0 +1,48 @@
+gal/usc/etse/grei/es/project/model/Compra.java
+ gal.usc.etse.grei.es.project.model.Compra
+gal/usc/etse/grei/es/project/exception/ExceptionResponse.java
+ gal.usc.etse.grei.es.project.exception.ExceptionResponse
+gal/usc/etse/grei/es/project/model/Producto.java
+ gal.usc.etse.grei.es.project.model.Producto
+gal/usc/etse/grei/es/project/filter/AuthorizationFilter.java
+ gal.usc.etse.grei.es.project.filter.AuthorizationFilter
+gal/usc/etse/grei/es/project/configuration/SecurityConfiguration.java
+ gal.usc.etse.grei.es.project.configuration.SecurityConfiguration
+gal/usc/etse/grei/es/project/service/AuthenticationService.java
+ gal.usc.etse.grei.es.project.service.AuthenticationService
+gal/usc/etse/grei/es/project/configuration/OpenAPIConfiguration.java
+ gal.usc.etse.grei.es.project.configuration.OpenAPIConfiguration
+gal/usc/etse/grei/es/project/repository/CompraRepository.java
+ gal.usc.etse.grei.es.project.repository.CompraRepository
+gal/usc/etse/grei/es/project/controller/UserController.java
+ gal.usc.etse.grei.es.project.controller.UserController
+gal/usc/etse/grei/es/Application.java
+ gal.usc.etse.grei.es.Application
+gal/usc/etse/grei/es/project/model/CompraInput.java
+ gal.usc.etse.grei.es.project.model.CompraInput
+gal/usc/etse/grei/es/project/exception/ErrorCodes.java
+ gal.usc.etse.grei.es.project.exception.ErrorCodes
+gal/usc/etse/grei/es/project/model/Fecha.java
+ gal.usc.etse.grei.es.project.model.Fecha
+gal/usc/etse/grei/es/project/configuration/AppConfig.java
+ gal.usc.etse.grei.es.project.configuration.AppConfig
+gal/usc/etse/grei/es/project/service/UserService.java
+ gal.usc.etse.grei.es.project.service.UserService
+gal/usc/etse/grei/es/project/controller/CompraController.java
+ gal.usc.etse.grei.es.project.controller.CompraController
+gal/usc/etse/grei/es/project/exception/CustomErrorHandler.java
+ gal.usc.etse.grei.es.project.exception.CustomErrorHandler
+gal/usc/etse/grei/es/project/interceptor/BodyInterceptor.java
+ gal.usc.etse.grei.es.project.interceptor.BodyInterceptor
+gal/usc/etse/grei/es/project/filter/AuthenticationFilter.java
+ gal.usc.etse.grei.es.project.filter.AuthenticationFilter
+gal/usc/etse/grei/es/project/model/Usuario.java
+ gal.usc.etse.grei.es.project.model.Usuario
+gal/usc/etse/grei/es/project/exception/ThrowHttpError.java
+ gal.usc.etse.grei.es.project.exception.ThrowHttpError
+gal/usc/etse/grei/es/project/service/CompraService.java
+ gal.usc.etse.grei.es.project.service.CompraService
+gal/usc/etse/grei/es/project/repository/UserRepository.java
+ gal.usc.etse.grei.es.project.repository.UserRepository
+gal/usc/etse/grei/es/project/service/PatchUtils.java
+ gal.usc.etse.grei.es.project.service.PatchUtils
