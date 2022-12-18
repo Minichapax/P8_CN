@@ -70,4 +70,23 @@ public class Carrito {
             this.discos_cantidades.remove(id_disco);
         }
     }
+
+    @Override
+    public String toString() {
+
+        String resultado= "Carrito{" +
+                "id='" + id + '\'' +
+                ", discos='";
+
+        for(String k : this.discos_cantidades.keySet()){
+            resultado= resultado  + '\'' +  k+ '\'' + this.discos_cantidades.get(k).toString();
+        }
+
+        resultado= resultado + '\'' +
+                ", cookie='" + this.cookie_user + '\'' +
+                '}';
+
+        return resultado;
+    }
+
 }
