@@ -114,7 +114,7 @@ public class CompraController {
 
         Optional<Page<Compra>> listado = compras.get(page, size, Sort.by(criteria), email);
 
-        if (listado.isPresent()){
+        if (!listado.isPresent()){
             throw new ResponseStatusException( ErrorCodes.SEARCH_NO_RESULT.getHttpStatus(), ErrorCodes.SEARCH_NO_RESULT.getErrorCode(), null);
         }
 
@@ -182,7 +182,7 @@ public class CompraController {
     })
     ResponseEntity<Compra> get(@PathVariable("id") String id) {
         Optional<Compra> usuario = compras.get(id);
-        if (usuario.isPresent()) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
+        if (!usuario.isPresent()) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
 
         Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
         Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
@@ -225,7 +225,7 @@ public class CompraController {
     })
     ResponseEntity<Compra> insert(@RequestBody CompraInput compra) {
         Optional<Compra> result = compras.insert(compra);
-        if(result.isPresent()) {
+        if(!result.isPresent()) {
             throw new ResponseStatusException(ErrorCodes.CREATION_CONFLICT.getHttpStatus(), ErrorCodes.CREATION_CONFLICT.getErrorCode(), null);
         } else {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId()).build().toUri();

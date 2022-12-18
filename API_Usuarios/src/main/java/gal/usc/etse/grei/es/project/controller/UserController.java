@@ -116,7 +116,7 @@ public class UserController {
 
         Optional<Page<Usuario>> listado = users.get(page, size, Sort.by(criteria), name, email);
 
-        if (listado.isPresent()){
+        if (!listado.isPresent()){
             throw new ResponseStatusException( ErrorCodes.SEARCH_NO_RESULT.getHttpStatus(), ErrorCodes.SEARCH_NO_RESULT.getErrorCode(), null);
         }
 
@@ -184,7 +184,7 @@ public class UserController {
     })
     ResponseEntity<Usuario> get(@PathVariable("id") String id) {
         Optional<Usuario> usuario = users.get(id);
-        if (usuario.isPresent()) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
+        if (!usuario.isPresent()) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
 
         Link self = linkTo(methodOn(UserController.class).get(id)).withSelfRel();
         Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(Usuario.class));
@@ -274,7 +274,7 @@ public class UserController {
     })
     ResponseEntity<Usuario> insert(@RequestBody Usuario usuario) {
         Optional<Usuario> result = users.insert(usuario);
-        if(result.isPresent()) {
+        if(!result.isPresent()) {
             throw new ResponseStatusException(ErrorCodes.CREATION_CONFLICT.getHttpStatus(), ErrorCodes.CREATION_CONFLICT.getErrorCode(), null);
         } else {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId()).build().toUri();

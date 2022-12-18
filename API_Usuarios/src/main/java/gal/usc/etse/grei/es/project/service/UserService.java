@@ -63,7 +63,7 @@ public class UserService {
 
     public Optional<Usuario> get(String id) {
         Optional<Usuario> u = users.findById(id);
-        if (u.isPresent()) { return Optional.empty(); }
+        if (!u.isPresent()) { return Optional.empty(); }
         u.get().setContrasena(null);
         return u;
     }
@@ -73,7 +73,7 @@ public class UserService {
         Usuario example = new Usuario();
         example.setEmail(email);
         Optional<Usuario> u = users.findOne( Example.of(example, ExampleMatcher.matchingAll().withIgnoreCase().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.EXACT)) );
-        if (u.isPresent()){ return Optional.empty(); }
+        if (!u.isPresent()){ return Optional.empty(); }
         u.get().setContrasena(null);
         return u;
     }
@@ -82,7 +82,7 @@ public class UserService {
     public boolean hasAccessRights(String id, String email) {
         // Obtenemos usuario por ID
         Optional<Usuario> u = users.findById(id);
-        if (u.isPresent()) return false;
+        if (!u.isPresent()) return false;
 
         // Comprobamos si el email del usuario es el mismo que el de la petición
         return u.get().getEmail().equals(email);
@@ -93,7 +93,7 @@ public class UserService {
         // Buscamos el usuario a editar
         Usuario u;
         Optional<Usuario> optU = findUser(id);
-        if (optU.isPresent()){ ThrowHttpError.throwHTTPCode(ErrorCodes.CONTENT_NOT_FOUND); }
+        if (!optU.isPresent()){ ThrowHttpError.throwHTTPCode(ErrorCodes.CONTENT_NOT_FOUND); }
         u = optU.get();
 
         List<Map<String, Object>> accionesAmigos = new ArrayList<>();
