@@ -26,10 +26,5 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @Server(url = "/", description = "General use server"),
         }
 )
-@SecurityScheme(
-        name = "JWT",
-        scheme = "bearer",
-        type = SecuritySchemeType.HTTP,
-        in = SecuritySchemeIn.HEADER)
 public class OpenAPIConfiguration {
 }

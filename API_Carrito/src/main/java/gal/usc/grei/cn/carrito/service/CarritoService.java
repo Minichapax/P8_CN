@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 public class CarritoService{
-    private final CarritoRepository carrito;
+    private final CarritoRepository carritos;
     private final PatchUtils patchUtils;
     private final ObjectMapper mapper;
 
@@ -53,14 +53,17 @@ public class CarritoService{
     }
 
     public Optional<Carrito> post(Carrito carro){
-        String id=carro.getId()
-        if(carritos.findById(id).equals(Optional.empty())){
-            return Optional.of(carritos.insert(carro));
+        String id=carro.getId();
+        if(id != null){
+            if(carritos.findById(id).equals(Optional.empty())){
+                return Optional.of(carritos.insert(carro));
+            }
+            else{
+                carritos.deleteById(id);
+                return Optional.of(carritos.insert(carro));
+            }
         }
-        else{
-            carritos.deleteById(id);
-            return Optional.of(carritos.insert(carro));
-        }
+        return Optional.of(carritos.insert(carro));
     }
 
     public HttpStatus delete(String id)  {
@@ -82,7 +85,7 @@ public class CarritoService{
                 } catch (JsonPatchException e) {
                     throw new RuntimeException(e);
                 }
-                return disks.save(patchcarro);
+                return carritos.save(patchcarro);
             });
     }
 

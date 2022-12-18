@@ -2,7 +2,15 @@ package gal.usc.grei.cn.carrito.model;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "carritos")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Carrito {
+
     @Id
     private String id;
 

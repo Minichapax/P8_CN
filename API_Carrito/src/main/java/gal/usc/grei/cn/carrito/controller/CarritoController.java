@@ -18,7 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,7 +34,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
-@RequestMapping("Carritos")
+@RequestMapping("carritos")
 @CrossOrigin(origins="*")
 @Tag(name = "Carrito API", description = "Operacions relacionadas co carrito")
 public class CarritoController{
@@ -76,7 +75,7 @@ public class CarritoController{
             )
     })
 
-    ResponseEntity<Page<Disco>> get(
+    ResponseEntity<Page<Carrito>> get(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10")  int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort,
@@ -123,7 +122,7 @@ public class CarritoController{
 
             Link one = linkTo(
                     methodOn(CarritoController.class).get(null)
-            ).withRel(relationProvider.getItemResourceRelFor(Disco.class));
+            ).withRel(relationProvider.getItemResourceRelFor(CarritoController.class));
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.LINK, self.toString())
@@ -142,11 +141,10 @@ public class CarritoController{
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-
     @Operation(
             operationId = "getunCarrito",
             summary = "Obtén un carrito por id",
-            description =   "Este método devolve en formato json o carrito da base de datos con esa id, se existe.\n" +
+            description =   "Este método devolve en formato json o carrito da base de datos con esa id, se existe.\n"
     )
     @ApiResponses({
             @ApiResponse(
@@ -160,7 +158,7 @@ public class CarritoController{
             )
     })
     public ResponseEntity<Carrito> get(@PathVariable("id")  String id){
-        Optional<Page<Carrito>> resultado = carritos.get(id);
+        Optional<Carrito> resultado = carritos.get(id);
 
         if(resultado.isPresent()) {
 
@@ -179,7 +177,7 @@ public class CarritoController{
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(
+    @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
 
@@ -222,7 +220,7 @@ public class CarritoController{
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(
+    @DeleteMapping(
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -230,7 +228,7 @@ public class CarritoController{
     @Operation(
             operationId = "deleteCarrito",
             summary = "Elimina un carrito por id",
-            description =   "Este método  elimina o carrito da base de datos con esa id, se existe.\n" +
+            description =   "Este método  elimina o carrito da base de datos con esa id, se existe.\n" 
     )
     @ApiResponses({
             @ApiResponse(
@@ -254,10 +252,10 @@ public class CarritoController{
                 .body(null);
     }
 
-    @GetMapping(
-            produces = MediaType.APPLICATION_JSON_VALUE
+    @PatchMapping(
+                path = "{id}",
+                produces = MediaType.APPLICATION_JSON_VALUE
     )
-
     @Operation(
             operationId = "patchCarrito",
             summary = "Modifica un carrito na base de datos.",
@@ -266,7 +264,7 @@ public class CarritoController{
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "200",
                     description = "Modificación correcta do carrito, os novos datos devólvense no body."
             ),
             @ApiResponse(
@@ -286,12 +284,12 @@ public class CarritoController{
             @RequestBody List<Map<String, Object>> updates){
         try {
             for (Map m : updates){
-                if(m.get("path").equals("/id")){
+                if(m.get("path").equals("/id") || m.get("path").equals("/cookie_user")){
                     return new ResponseEntity(HttpStatus.BAD_REQUEST);
                 }
             }
 
-            Optional<Page<Carrito>> resultado = this.carritos.patch(id, updates);
+            Optional<Carrito> resultado = this.carritos.patch(id, updates);
 
             if (resultado.isPresent()) {
 
