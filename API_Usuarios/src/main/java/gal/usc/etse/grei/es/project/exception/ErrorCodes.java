@@ -20,7 +20,7 @@ public enum ErrorCodes {
     JSONPATCH_SCHEMA("Al menos una operación solicitada no cumple con el esquema de recursos solicitado", "2007", HttpStatus.BAD_REQUEST),
     UNPROCESSABLE("El servidor es incapaz de procesar la solicitud definida en el esquema dado", "2008", HttpStatus.UNPROCESSABLE_ENTITY),
     PATCH_FORBIDDEN_OP("Al menos una de las rutas indicadas no acepta la operación suministrada", "2009", HttpStatus.BAD_REQUEST),
-    FILM_NOT_FOUND("La película indicada no existe", "2010", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND("El usuario indicado no existe", "2010", HttpStatus.BAD_REQUEST),
     ASSESSMENT_NEED_FILTER("Debe especificar un parámetro de exclusión entre el usuario y la película", "2011", HttpStatus.BAD_REQUEST),
 
     URL_NOT_FOUND("La ruta a la que intenta acceder no existe", "3000", HttpStatus.NOT_FOUND),

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -19,14 +20,14 @@ public class Compra {
 
     private Usuario usuario;
 
-    private List<Producto> productos;
+    private Map<String ,Integer> productos;
 
     private String tarjeta;
 
     public Compra() {
     }
 
-    public Compra(String id, Fecha fechacompra, Usuario usuario, List<Producto> productos, String tarjeta) {
+    public Compra(String id, Fecha fechacompra, Usuario usuario, Map<String ,Integer> productos, String tarjeta) {
         this.id = id;
         this.fechacompra = fechacompra;
         this.usuario = usuario;
@@ -58,11 +59,11 @@ public class Compra {
         this.usuario = usuario;
     }
 
-    public List<Producto> getProductos() {
+    public Map<String ,Integer> getProductos() {
         return productos;
     }
 
-    public void setProductos(List<Producto> productos) {
+    public void setProductos(Map<String ,Integer> productos) {
         this.productos = productos;
     }
 

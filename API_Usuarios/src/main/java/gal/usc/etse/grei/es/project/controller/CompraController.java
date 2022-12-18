@@ -43,7 +43,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("compras")
-@Tag(name = "User API", description = "Operaciones de compras")
+@Tag(name = "Compras API", description = "Operaciones de compras")
 @SecurityRequirement(name = "JWT")
 @CrossOrigin(origins = "*")
 public class CompraController {
@@ -203,6 +203,7 @@ public class CompraController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             operationId = "createCompra",
             summary = "Realiza una compra de un disco dentro del sistema.",
@@ -248,7 +249,7 @@ public class CompraController {
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@compraService.hasAccessRights(#id, principal) or hasRole('ADMIN')")
     @Operation(
             operationId = "deleteCompra",
             summary = "Elimina una compra del sistema.",
@@ -257,7 +258,7 @@ public class CompraController {
     @ApiResponses({
             @ApiResponse(
                     responseCode = "204",
-                    description = "Compra eliminado"
+                    description = "Compra eliminada"
             ),
             @ApiResponse(
                     responseCode = "401",
