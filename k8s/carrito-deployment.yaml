@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: users-deployment
+  name: carrito-deployment
   labels:
-    name: users-deployment
+    name: carrito-deployment
     app: tiendavirtual
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: users-deployment
+      name: carrito-deployment
       app: tiendavirtual
   template:
     metadata:
       labels:
-        name: users-deployment
+        name: carrito-deployment
         app: tiendavirtual
     spec:
       containers:
-        - name: usersapi
-          image: iv120/cnp8-user:latest
+        - name: carritoapi
+          image: iv120/cnp8-carrito:latest
           ports:
             - containerPort: 8080
           env:

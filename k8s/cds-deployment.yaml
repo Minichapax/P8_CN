@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: users-deployment
+  name: cds-deployment
   labels:
-    name: users-deployment
+    name: cds-deployment
     app: tiendavirtual
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: users-deployment
+      name: cds-deployment
       app: tiendavirtual
   template:
     metadata:
       labels:
-        name: users-deployment
+        name: cds-deployment
         app: tiendavirtual
     spec:
       containers:
-        - name: usersapi
-          image: iv120/cnp8-user:latest
+        - name: cdsapi
+          image: iv120/cnp8-cds:latest
           ports:
             - containerPort: 8080
           env:
