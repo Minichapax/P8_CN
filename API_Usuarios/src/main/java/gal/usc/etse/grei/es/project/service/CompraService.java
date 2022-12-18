@@ -1,6 +1,5 @@
 package gal.usc.etse.grei.es.project.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gal.usc.etse.grei.es.project.exception.ErrorCodes;
 import gal.usc.etse.grei.es.project.exception.ThrowHttpError;
 import gal.usc.etse.grei.es.project.model.Compra;
@@ -9,11 +8,9 @@ import gal.usc.etse.grei.es.project.model.Fecha;
 import gal.usc.etse.grei.es.project.model.Usuario;
 import gal.usc.etse.grei.es.project.repository.CompraRepository;
 import gal.usc.etse.grei.es.project.repository.UserRepository;
-import io.swagger.v3.oas.models.media.UUIDSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,19 +19,13 @@ import java.util.Optional;
 @Service
 public class CompraService {
 
-    private final PasswordEncoder encoder;
     private final CompraRepository compras;
     private final UserRepository users;
-    private final PatchUtils patchUtils;
-    private final ObjectMapper mapper;
 
     @Autowired
-    public CompraService(CompraRepository compras, UserRepository users, PatchUtils pu, ObjectMapper mapper, PasswordEncoder encoder) {
-        this.encoder = encoder;
+    public CompraService(CompraRepository compras, UserRepository users) {
         this.users = users;
         this.compras = compras;
-        this.patchUtils = pu;
-        this.mapper = mapper;
     }
 
     private Optional<Usuario> findUser(String email){

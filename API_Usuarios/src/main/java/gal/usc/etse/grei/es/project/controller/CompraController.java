@@ -5,9 +5,7 @@ import gal.usc.etse.grei.es.project.exception.ExceptionResponse;
 import gal.usc.etse.grei.es.project.exception.ThrowHttpError;
 import gal.usc.etse.grei.es.project.model.Compra;
 import gal.usc.etse.grei.es.project.model.CompraInput;
-import gal.usc.etse.grei.es.project.model.Usuario;
 import gal.usc.etse.grei.es.project.service.CompraService;
-import gal.usc.etse.grei.es.project.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,7 +23,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,7 +30,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.constraints.Email;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -118,7 +114,7 @@ public class CompraController {
 
         Optional<Page<Compra>> listado = compras.get(page, size, Sort.by(criteria), email);
 
-        if ( !listado.isPresent() ){
+        if (listado.isEmpty()){
             throw new ResponseStatusException( ErrorCodes.SEARCH_NO_RESULT.getHttpStatus(), ErrorCodes.SEARCH_NO_RESULT.getErrorCode(), null);
         }
 
@@ -186,7 +182,7 @@ public class CompraController {
     })
     ResponseEntity<Compra> get(@PathVariable("id") String id) {
         Optional<Compra> usuario = compras.get(id);
-        if ( !usuario.isPresent() ) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
+        if (usuario.isEmpty()) throw new ResponseStatusException( ErrorCodes.CONTENT_NOT_FOUND.getHttpStatus(), ErrorCodes.CONTENT_NOT_FOUND.getErrorCode(), null);
 
         Link self = linkTo(methodOn(CompraController.class).get(id)).withSelfRel();
         Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
@@ -232,7 +228,7 @@ public class CompraController {
         if(result.isEmpty()) {
             throw new ResponseStatusException(ErrorCodes.CREATION_CONFLICT.getHttpStatus(), ErrorCodes.CREATION_CONFLICT.getErrorCode(), null);
         } else {
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId().toString()).build().toUri();
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(result.get().getId()).build().toUri();
 
             Link self = linkTo(methodOn(CompraController.class).get(result.get().getId())).withSelfRel();
             Link all = linkTo(CompraController.class).withRel(relationProvider.getCollectionResourceRelFor(Compra.class));
