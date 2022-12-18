@@ -32,7 +32,7 @@ public class CompraService {
         Usuario example = new Usuario();
         example.setEmail(email);
         Optional<Usuario> u = users.findOne( Example.of(example, ExampleMatcher.matchingAll().withIgnoreCase().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.EXACT)) );
-        if (u.isEmpty()){ return Optional.empty(); }
+        if (u.isPresent()){ return Optional.empty(); }
         u.get().setContrasena(null);
         return u;
     }
@@ -61,7 +61,7 @@ public class CompraService {
 
     public Optional<Compra> get(String id) {
         Optional<Compra> c = compras.findById(id);
-        if (c.isEmpty()) { return Optional.empty(); }
+        if (c.isPresent()) { return Optional.empty(); }
         return c;
     }
 
@@ -69,11 +69,11 @@ public class CompraService {
     public boolean hasAccessRights(String id, String email) {
         // Obtenemos usuario por ID
         Optional<Usuario> u = users.findById(id);
-        if (u.isEmpty()) return false;
+        if (u.isPresent()) return false;
 
         // Obtenemos compra por ID
         Optional<Compra> c = compras.findById(id);
-        if (c.isEmpty()) return false;
+        if (c.isPresent()) return false;
 
         // Comprobamos si el email del usuario es el mismo que el de la petición
         return c.get().getUsuario().getId().equals(u.get().getId());
@@ -87,7 +87,7 @@ public class CompraService {
         }
 
         Optional<Usuario> u = findUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        if (u.isEmpty()) {
+        if (u.isPresent()) {
             ThrowHttpError.throwHTTPCode(ErrorCodes.USER_NOT_FOUND);
         };
 
